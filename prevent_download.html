@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+</head>
+<body>
+    <!-- PDF 页面显示容器 -->
+    <div id="pdf-viewer"></div>
+
+    <script>
+        document.addEventListener("contextmenu",function(e){
+                e.preventDefault()
+        });
+        var url = './Calculus Early Transcendentals 9th Edition by James Stewart, Daniel K. Clegg, Saleem Watson, Lothar Redlin.pdf.pdf';
+
+
+        var pdfjsLib = window['pdfjs-dist/build/pdf'];
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
+
+    
+        var loadingTask = pdfjsLib.getDocument(url);
+        loadingTask.promise.then(function(pdf) {
+            console.log('PDF 加载成功');
+
+            
+            var totalPages = pdf.numPages;
+            for (var pageNumber = 1; pageNumber <= totalPages; pageNumber++) {
+                renderPage(pdf, pageNumber);
+            }
+        }, function(reason) {
+            console.error('PDF 加载失败: ' + reason);
+        });
+
+        function renderPage(pdf, pageNumber) {
+            
+            pdf.getPage(pageNumber).then(function(page) {
+                var scale = 1.5;  // 放大比例
+                var viewport = page.getViewport({ scale: scale });
+
+                
+                var canvas = document.createElement('canvas');
+                var context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+               
+                var pdfViewer = document.getElementById('pdf-viewer');
+                pdfViewer.appendChild(canvas);
+
+            
+                var renderContext = {
+                    canvasContext: context,
+                    viewport: viewport
+                };
+                page.render(renderContext).promise.then(function() {
+                    console.log('第 ' + pageNumber + ' 页渲染完成');
+                });
+            });
+        }
+    </script>
+</body>
+</html>

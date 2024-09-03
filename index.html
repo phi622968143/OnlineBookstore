@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- 使用 CDN 链接 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+</head>
+<body>
+<a href="./prevent_download.html"><canvas id="the-canvas"></canvas></a>
+<script>
+    var url = './Calculus Early Transcendentals 9th Edition by James Stewart, Daniel K. Clegg, Saleem Watson, Lothar Redlin.pdf.pdf';
+
+  // 使用 pdf.js 库
+  var pdfjsLib = window['pdfjs-dist/build/pdf'];//get module
+
+  // The workerSrc property shall be specified.
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
+  // Asynchronous download of PDF
+  var loadingTask = pdfjsLib.getDocument(url);
+  loadingTask.promise.then(function(pdf) {
+    console.log('PDF loaded');
+
+    // Fetch the first page
+    var pageNumber = 1;
+    pdf.getPage(pageNumber).then(function(page) {
+      console.log('Page loaded');
+
+      var scale = 0.5;
+      var viewport = page.getViewport({scale: scale});
+
+      // Prepare canvas using PDF page dimensions
+      var canvas = document.getElementById('the-canvas');
+      var context = canvas.getContext('2d');
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+
+      // Render PDF page into canvas context
+      var renderContext = {
+        canvasContext: context,
+        viewport: viewport
+      };
+      var renderTask = page.render(renderContext);
+      renderTask.promise.then(function () {
+        console.log('Page rendered');
+      });
+    });
+  }, function (reason) {
+    // PDF loading error
+    console.error(reason);
+  });
+</script>
+</body>
+</html>
